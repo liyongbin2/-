@@ -1,5 +1,5 @@
 #include<stdio.h>
-#define M 1000
+#define M 1000//给M足够大的内存空间，确保数值全部键入
 int n,m;//物品个数，属性个数
 int a[M][M];//物品的属性
 int b[M];//存放约束条件，就是背包容量
@@ -7,26 +7,29 @@ double v[M];//存放价值
 double bestvalue=0;//存放最优解
 double curvalue=0;//存放当前价值
 int best[M];//存放所取物品,已经取了的
-double x[M]={0,0,0};   //x[i]=1代表物品i放入背包，0代表不放
+double x[M]={0,0,0};   //x[i]=1代表物品i放入背包，0代表不放，1表示放
 double d[M];//存放当前已取的物品，并把其各属性存放在其中，如果取到多个则累加约束条件
-int left[M];
+int left[M];//在使用上界函数时存储剩余的背包容量
 int lianxupanduan(int k,int i,int t,double d[])//定义一个连续判断的函数，i是指0或1，t是指当前节点（获取的是back函数中的t），d[]是指当前所选物品属性全部加起来的值
 {
-	if(k<m) if(d[k]+i*a[k][t]<=b[k])//如果当前所选物品属性全部加起来的值小于等于背包容量
+	if(k<m)
+		if(d[k]+i*a[k][t]<=b[k])//如果当前所选物品属性全部加起来的值小于等于背包容量
 		{
 			  lianxupanduan(k+1,i,t,d);//递归lianxupanduan函数，如果全部满足约束，则return 1，也就是判断为真，向下执行back函数
 	
 		}
 				else 
 				{
-					return 0;//否则返回0，判断为假
+					return 0;//否则返回0，判断为假，就不取物品，然后跳出判断语句执行后面两个语句（if(bound(i+1)>bestvalue)//判断是否符合条件，如果不符合则进行剪枝back(t+1);//一直遍历到最后，也就是一直得到最新的最优解）
+				       
+				   
 				}
 	
 }
 
 void back(int t)
 {
-	if(t>n)
+	if(t>n)//遍历当前根节点
 	{
 	 if(curvalue>bestvalue)	//判断当前价值是否大于最优解
 	 {
@@ -45,7 +48,7 @@ void back(int t)
 
 				//添加判断所选物件是否大于约束条件
 				
-				          if(lianxupanduan(0,i,t,d))
+				          if(lianxupanduan(0,i,t,d))//连续判断物品当前背包余量是否大于背包容量
 					  {   
 						   for(int c=0;c<m;c++)
 						   {
@@ -68,7 +71,7 @@ void back(int t)
 		
 	}
 }
-double bound(int j)//设置上界函数
+double bound(int j)//设置上界函数，j是当前树的节点，对应回溯法back（）中的i
 {
 
 	for(int f=0;f<=m;f++)
@@ -91,7 +94,7 @@ double bound(int j)//设置上界函数
 	{
 		for(int q=0;q<=m;q++)
 		{
-          b+=v[j]/a[q][j]*left[j];
+          b+=v[j]/a[q][j]*left[j];//存储当前价值
 		}
 		return b;
 	}
@@ -115,10 +118,10 @@ void main()
 	}
     printf("请依次输入物品的属性限制:\n");
      for(int w=0;w<m;w++) 
-        scanf("%d",&b[w]);//获取键盘输入的值
+        scanf("%d",&b[w]);//获取键盘输入的值，背包容量
     for(int e=1;e<m;e++)
        d[e]=0;
-    back(0);
+    back(0);//调用回溯法
     printf("最大价值为:\n");
     printf("%lf\n",bestvalue);//输出最优解
     printf("被选中的物品有(1是选中，0是没有选中)\n");
@@ -127,3 +130,6 @@ void main()
     printf("\n");
 
 }
+
+
+
